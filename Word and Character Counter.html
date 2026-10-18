@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Word & Character Counter</title>
+  <style>
+    :root {
+      --primary: #6657e8;
+      --primary-dark: #4d3dcc;
+      --ink: #25243d;
+      --muted: #77768d;
+      --border: #e7e6f1;
+      --bg: #f7f6ff;
+      --white: #ffffff;
+      --green: #13865c;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 30px 16px;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 0% 0%, #e7e1ff 0, transparent 32%),
+        radial-gradient(circle at 100% 100%, #dff8ef 0, transparent 30%),
+        var(--bg);
+    }
+
+    button, textarea, select { font: inherit; }
+    button { cursor: pointer; }
+
+    .app { max-width: 1050px; margin: auto; }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 25px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .logo {
+      display: grid;
+      place-items: center;
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #897aff, #5545d6);
+      color: white;
+      font-size: 25px;
+      font-weight: 800;
+      box-shadow: 0 8px 18px #6657e82b;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 27px;
+      letter-spacing: -1px;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .privacy {
+      padding: 9px 12px;
+      border: 1px solid #d7efe5;
+      border-radius: 30px;
+      background: #f0fbf6;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .intro { margin-bottom: 22px; }
+
+    .intro h2 {
+      margin: 0 0 8px;
+      font-size: clamp(26px, 4vw, 35px);
+      letter-spacing: -1px;
+    }
+
+    .intro p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .card {
+      padding: 23px;
+      border: 1px solid #ffffff;
+      border-radius: 22px;
+      background: var(--white);
+      box-shadow: 0 14px 38px #30276d0b;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .section-subtitle {
+      margin: 6px 0 17px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    textarea {
+      display: block;
+      width: 100%;
+      min-height: 320px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      outline: none;
+      background: #fdfdff;
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.8;
+      resize: vertical;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px #6657e81a;
+    }
+
+    .editor-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 9px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 17px;
+    }
+
+    .btn {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: white;
+      color: #5b5976;
+      font-size: 12px;
+      font-weight: 750;
+      transition: 0.15s;
+    }
+
+    .btn:hover { background: #f5f3ff; border-color: #c8c1ff; }
+
+    .btn-primary {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      border-color: var(--primary-dark);
+      background: var(--primary-dark);
+      color: white;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .stat {
+      min-height: 105px;
+      padding: 17px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: linear-gradient(145deg, #ffffff, #faf9ff);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .stat-number {
+      margin-top: 10px;
+      font-size: 29px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      overflow-wrap: anywhere;
+    }
+
+    .stat-unit {
+      margin-top: 3px;
+      color: #9997aa;
+      font-size: 11px;
+    }
+
+    .reading-card {
+      margin-top: 18px;
+      padding: 17px;
+      border: 1px solid #e1ddff;
+      border-radius: 16px;
+      background: #f7f5ff;
+    }
+
+    .reading-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .reading-header h3 {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .reading-time {
+      color: var(--primary-dark);
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .reading-card p {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .details { margin-top: 22px; }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0eff6;
+      font-size: 13px;
+    }
+
+    .detail-row:last-child { border-bottom: none; }
+
+    .detail-row span { color: var(--muted); }
+    .detail-row strong { text-align: right; overflow-wrap: anywhere; }
+
+    .message {
+      min-height: 18px;
+      margin-top: 12px;
+      color: var(--green);
+      font-size: 12px;
+    }
+
+    footer {
+      margin-top: 24px;
+      color: #89879d;
+      font-size: 11px;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    @media (max-width: 760px) {
+      body { padding: 22px 12px; }
+      .layout { grid-template-columns: 1fr; }
+      textarea { min-height: 260px; }
+      .card { padding: 19px; }
+    }
+
+    @media (max-width: 430px) {
+      .privacy { display: none; }
+      h1 { font-size: 23px; }
+      .stat { padding: 14px; }
+      .stat-number { font-size: 25px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true">W</div>
+        <div>
+          <h1>Word & Character Counter</h1>
+          <p>A simple workspace for your words</p>
+        </div>
+      </div>
+      <div class="privacy">🔒 Private & local</div>
+    </header>
+
+    <section class="intro">
+      <h2>Every word, counted.</h2>
+      <p>Paste your article, essay, or draft. Get instant text statistics as you type.</p>
+    </section>
+
+    <div class="layout">
+      <section class="card">
+        <h2 class="section-title">Your text</h2>
+        <p class="section-subtitle">
+          Type or paste anything below. Statistics update automatically.
+        </p>
+
+        <textarea
+          id="textInput"
+          placeholder="Start writing or paste your article here..."
+          aria-label="Text to analyze"
+          spellcheck="true"
+        ></textarea>
+
+        <div class="editor-footer">
+          <span id="editorStatus">Ready to analyze</span>
+          <span id="liveCharacters">0 characters</span>
+        </div>
+
+        <div class="actions">
+          <button class="btn" id="sampleBtn" type="button">✦ Try sample</button>
+          <button class="btn" id="copyBtn" type="button">Copy text</button>
+          <button class="btn" id="downloadBtn" type="button">↓ Download .txt</button>
+          <button class="btn" id="clearBtn" type="button">Clear all</button>
+        </div>
+        <div class="message" id="message" aria-live="polite"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="section-title">Text statistics</h2>
+        <p class="section-subtitle">A live breakdown of your content.</p>
+
+        <div class="stats-grid">
+          <div class="stat">
+            <div class="stat-label">Words</div>
+            <div class="stat-number" id="words">0</div>
+            <div class="stat-unit">total words</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Characters</div>
+            <div class="stat-number" id="characters">0</div>
+            <div class="stat-unit">including spaces</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">No-space chars</div>
+            <div class="stat-number" id="noSpaces">0</div>
+            <div class="stat-unit">excluding whitespace</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Sentences</div>
+            <div class="stat-number" id="sentences">0</div>
+            <div class="stat-unit">estimated sentences</div>
+          </div>
+        </div>
+
+        <div class="reading-card">
+          <div class="reading-header">
+            <h3>📖 Estimated reading time</h3>
+            <div class="reading-time" id="readingTime">0 min</div>
+          </div>
+          <p>Based on an average reading speed of 200 words per minute.</p>
+        </div>
+
+        <div class="details">
+          <div class="detail-row">
+            <span>Paragraphs</span>
+            <strong id="paragraphs">0</strong>
+          </div>
+          <div class="detail-row">
+            <span>Average word length</span>
+            <strong id="averageLength">0 characters</strong>
+          </div>
+          <div class="detail-row">
+            <span>Longest word</span>
+            <strong id="longestWord">—</strong>
+          </div>
+          <div class="detail-row">
+            <span>Estimated speaking time</span>
+            <strong id="speakingTime">0 min</strong>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      Your text is processed in your browser and is not uploaded to a server.<br>
+      Counts are estimates: punctuation, abbreviations, and different writing systems
+      can affect word and sentence boundaries.
+    </footer>
+  </main>
+
+  <script>
+    const textInput = document.getElementById("textInput");
+    const message = document.getElementById("message");
+
+    const sampleText = `Science helps us understand the world around us. From the movement of planets to the behaviour of tiny particles, scientific ideas encourage us to ask questions and test explanations.
+
+Technology turns knowledge into useful tools. When combined with creativity and careful thinking, it can help people solve problems, communicate across distances, and discover new possibilities.
+
+Learning is a continuous process. Every experiment, observation, and mistake can teach us something valuable.`;
+
+    function getWords(text) {
+      const trimmed = text.trim();
+      if (!trimmed) return [];
+
+      // Match runs of letters or numbers, including common internal apostrophes.
+      // Unicode property escapes support words from many writing systems.
+      return trimmed.match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu) || [];
+    }
+
+    function countSentences(text) {
+      const trimmed = text.trim();
+      if (!trimmed) return 0;
+
+      // A lightweight estimate: count terminal punctuation runs.
+      const matches = trimmed.match(/[.!?。！？]+(?=\s|$|["'”’)\]])/gu) || [];
+      let count = matches.length;
+
+      // If there's meaningful text after the last terminal mark, count it as a sentence.
+      const lastTerminal = /[.!?。！？]+["'”’)\]]*\s*$/u;
+      if (!lastTerminal.test(trimmed)) {
+        count += 1;
+      }
+
+      return count;
+    }
+
+    function formatTime(minutes) {
+      if (minutes === 0) return "0 min";
+      if (minutes < 1) return "< 1 min";
+
+      const wholeMinutes = Math.floor(minutes);
+      const seconds = Math.round((minutes - wholeMinutes) * 60);
+
+      if (wholeMinutes === 0) return `${seconds} sec`;
+      if (seconds === 0) return `${wholeMinutes} min`;
+
+      return `${wholeMinutes} min ${seconds} sec`;
+    }
+
+    function updateStats() {
+      const text = textInput.value;
+      const words = getWords(text);
+      const trimmed = text.trim();
+      const wordCount = words.length;
+      const charCount = text.length;
+      const noSpaceCount = text.replace(/\s/gu, "").length;
+
+      const paragraphCount = trimmed
+        ? trimmed.split(/\n\s*\n/u).filter(paragraph => paragraph.trim()).length
+        : 0;
+
+      const totalWordCharacters = words.reduce(
+        (sum, word) => sum + word.length, 0
+      );
+
+      const averageLength = wordCount
+        ? (totalWordCharacters / wordCount).toFixed(1)
+        : "0";
+
+      const longestWord = words.reduce(
+        (longest, word) => word.length > longest.length ? word : longest,
+        ""
+      );
+
+      const readingMinutes = wordCount / 200;
+      const speakingMinutes = wordCount / 130;
+
+      document.getElementById("words").textContent = wordCount.toLocaleString();
+      document.getElementById("characters").textContent = charCount.toLocaleString();
+      document.getElementById("noSpaces").textContent = noSpaceCount.toLocaleString();
+      document.getElementById("sentences").textContent = countSentences(text).toLocaleString();
+      document.getElementById("paragraphs").textContent = paragraphCount.toLocaleString();
+      document.getElementById("averageLength").textContent = `${averageLength} characters`;
+      document.getElementById("longestWord").textContent = longestWord || "—";
+      document.getElementById("readingTime").textContent = formatTime(readingMinutes);
+      document.getElementById("speakingTime").textContent = formatTime(speakingMinutes);
+
+      document.getElementById("liveCharacters").textContent =
+        `${charCount.toLocaleString()} characters`;
+
+      document.getElementById("editorStatus").textContent =
+        trimmed ? "Analyzing as you type" : "Ready to analyze";
+    }
+
+    function showMessage(text, isError = false) {
+      message.textContent = text;
+      message.style.color = isError ? "#c33c53" : "#13865c";
+    }
+
+    textInput.addEventListener("input", () => {
+      updateStats();
+      message.textContent = "";
+    });
+
+    document.getElementById("sampleBtn").addEventListener("click", () => {
+      textInput.value = sampleText;
+      updateStats();
+      showMessage("Sample article loaded.");
+    });
+
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      if (!textInput.value) {
+        showMessage("The text box is already empty.");
+        return;
+      }
+
+      textInput.value = "";
+      updateStats();
+      showMessage("Text cleared.");
+      textInput.focus();
+    });
+
+    document.getElementById("copyBtn").addEventListener("click", async () => {
+      if (!textInput.value) {
+        showMessage("Enter some text before copying.", true);
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(textInput.value);
+        showMessage("Text copied to clipboard!");
+      } catch (error) {
+        textInput.focus();
+        textInput.select();
+        showMessage("Automatic copy unavailable. Press Ctrl+C to copy.", true);
+      }
+    });
+
+    document.getElementById("downloadBtn").addEventListener("click", () => {
+      if (!textInput.value) {
+        showMessage("Enter some text before downloading.", true);
+        return;
+      }
+
+      const blob = new Blob([textInput.value], {
+        type: "text/plain;charset=utf-8"
+      });
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "my-article.txt";
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+
+      showMessage("Your text file has been downloaded.");
+    });
+
+    updateStats();
+  </script>
+</body>
+</html>
